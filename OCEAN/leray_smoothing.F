@@ -10,6 +10,9 @@
 !
 #include "cppdefs.h"
 #ifdef LERAY_TURB
+!      
+!Computation of the filter weights to apply to velocity components in
+!advection operators (Petersen, 2008)
       subroutine calc_smoothing_weights()
       implicit none    
 # include "param.h"
@@ -107,7 +110,146 @@
 # endif      
 
       return
+      end subroutine
+!
+!Count the number of available points around each point to determine the
+!size of the filter window:
+!        - no available points (domain boundary or mask points)
+      subroutine fill_fwidth_array(tile)
+      implicit none
+      integer  tile, trd, omp_get_thread_num
+# include "param.h"      
+# include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call fill_fwidth_array_tile (istr,iend,jstr,jend)
+      return
+      end
 
+      subroutine fill_fwidth_array_tile(istr,iend,jstr,jend)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "leray_smoothing.h" 
+
+      integer istr,iend,jstr,jend,i,j,k
+      integer imin,imax,jmin,jmax
+# include "compute_auxiliary_bounds.h"
+!compute imin,jmin,imax,jmax according to periodic boundaries, INTER or .not.INTER
+# ifdef NS_PERIODIC
+      jmin=Jstr-filter_width/2
+      jmax=Jend+filter_width/2
+# else
+#  ifdef MPI
+      if (SOUTH_INTER) then
+        jmin=Jstr-filter_width/2
+      else
+        jmin=Jstr
+      endif
+      if (NORTH_INTER) then
+        jmax=Jend+filter_width/2
+      else
+        jmax=Jend
+      endif
+#  else
+      jmin=Jstr
+      jmax=Jend
+#  endif
+# endif      
+# ifdef EW_PERIODIC
+      imin=IstrU-filter_width/2
+      imax=Iend+filter_width/2
+# else
+#  ifdef MPI
+      if (WEST_INTER) then
+        imin=IstrU-filter_width/2
+      else
+        imin=IstrU
+      endif
+      if (EAST_INTER) then
+        imax=Iend+filter_width/2
+      else
+        imax=Iend
+      endif
+#  else
+      imin=IstrU
+      imax=Iend
+#  endif
+# endif      
+      u_fwidth_array(IstrU:Iend,Jstr:Jend)=filter_width
+      if (WESTERN_EDGE  .or. EASTERN_EDGE .or.
+     &    SOUTHERN_EDGE .or. NORTHERN_EDGE) then
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            do k=filter_width/2,1,-1
+              if(i-k.ge.imin .and. i+k.le.imax
+     &     .and. j-k.ge.jmin .and. j+k.le.jmax) then
+                exit
+              else
+                u_fwidth_array(i,j)=2*(k-1)+1
+              endif  
+            enddo  
+          enddo
+        enddo
+      endif  
+            
+# ifdef NS_PERIODIC
+      jmin=JstrV-filter_width/2
+      jmax=Jend+filter_width/2
+# else
+#  ifdef MPI
+      if (SOUTH_INTER) then
+        jmin=JstrV-filter_width/2
+      else
+        jmin=JstrV
+      endif
+      if (NORTH_INTER) then
+        jmax=Jend+filter_width/2
+      else
+        jmax=Jend
+      endif
+#  else
+      jmin=JstrV
+      jmax=Jend
+#  endif
+# endif      
+# ifdef EW_PERIODIC
+      imin=Istr-filter_width/2
+      imax=Iend+filter_width/2
+# else
+#  ifdef MPI
+      if (WEST_INTER) then
+        imin=Istr-filter_width/2
+      else
+        imin=Istr
+      endif
+      if (EAST_INTER) then
+        imax=Iend+filter_width/2
+      else
+        imax=Iend
+      endif
+#  else
+      imin=Istr
+      imax=Iend
+#  endif
+# endif        
+      v_fwidth_array(Istr:Iend,JstrV:Jend)=filter_width
+      if (WESTERN_EDGE  .or. EASTERN_EDGE .or.
+     &    SOUTHERN_EDGE .or. NORTHERN_EDGE) then
+        do j=JstrV,Jend
+          do i=Istr,Iend
+            do k=filter_width/2,1,-1
+              if(i-k.ge.imin .and. i+k.le.imax
+     &     .and. j-k.ge.jmin .and. j+k.le.jmax) then
+                exit
+              else
+                v_fwidth_array(i,j)=2*(k-1)+1
+              endif  
+            enddo  
+          enddo
+        enddo
+      endif  
+
+      return
       end subroutine
 
 
