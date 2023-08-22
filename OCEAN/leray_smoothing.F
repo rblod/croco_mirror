@@ -115,21 +115,22 @@
 !Count the number of available points around each point to determine the
 !size of the filter window:
 !        - no available points (domain boundary or mask points)
-      subroutine fill_fwidth_array(tile)
+      subroutine compute_fwidth_array(tile)
       implicit none
       integer  tile, trd, omp_get_thread_num
 # include "param.h"      
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-      call fill_fwidth_array_tile (istr,iend,jstr,jend)
+      call compute_fwidth_array_tile (istr,iend,jstr,jend)
       return
       end
 
-      subroutine fill_fwidth_array_tile(istr,iend,jstr,jend)
+      subroutine compute_fwidth_array_tile(istr,iend,jstr,jend)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
 # include "leray_smoothing.h" 
+# include "scalars.h"      
 
       integer istr,iend,jstr,jend,i,j,k
       integer imin,imax,jmin,jmax
@@ -251,6 +252,115 @@
 
       return
       end subroutine
+
+      subroutine smooth_horiz_3d(istr,iend,jstr,jend)
+      implicit none
+# include "param.h"      
+# include "ocean3d.h"
+# include "leray_smoothing.h"
+# include "scalars.h"      
+# include "set_global_definitions.h" 
+
+      real wrk(PRIVATE_2D_SCRATCH_ARRAY)
+      integer istr,iend,jstr,jend
+      integer i,j,k
+
+# include "compute_auxiliary_bounds.h"      
+
+      do k=1,N
+        do j=jstr,jend
+          do i=IstrU,iend
+# ifdef LERAY_FILTER_9PTS         
+            if(u_fwidth_array(i,j).eq.9) then
+              wrk(i,j) = sum( Huon(i-4:i+4,j-4:j+4,k)
+     &                      * filter_weights(-4:4,-4:4) )
+     &                   / weights_sum9
+            endif 
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS
+            if(u_fwidth_array(i,j).eq.7) then 
+              wrk(i,j) = sum( Huon(i-3:i+3,j-3:j+3,k)
+     &                      * filter_weights(-3:3,-3:3) )
+     &                   / weights_sum7
+            endif  
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS | defined LERAY_FILTER_5PTS
+            if(u_fwidth_array(i,j).eq.5) then 
+              wrk(i,j) = sum( Huon(i-2:i+2,j-2:j+2,k)
+     &                      * filter_weights(-2:2,-2:2) )
+     &                   / weights_sum5
+            endif  
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS | defined LERAY_FILTER_5PTS | defined LERAY_FILTER_3PTS
+            if(u_fwidth_array(i,j).eq.3) then 
+              wrk(i,j) = sum( Huon(i-1:i+1,j-1:j+1,k)
+     &                      * filter_weights(-1:1,-1:1) )
+     &                   / weights_sum3
+            endif
+# endif
+            if(u_fwidth_array(i,j).lt.3) then
+                wrk(i,j) = Huon(i,j,k)
+            endif
+          enddo
+        enddo
+        Huon(IstrU:iend,jstr:jend,k) = wrk(IstrU:iend,jstr:jend)
+      enddo  
+
+      do k=1,N
+        do j=JstrV,jend
+          do i=istr,iend
+# ifdef LERAY_FILTER_9PTS         
+            if(v_fwidth_array(i,j).eq.9) then
+              wrk(i,j) = sum( Hvom(i-4:i+4,j-4:j+4,k)
+     &                      * filter_weights(-4:4,-4:4) )
+     &                   / weights_sum9
+            endif 
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS
+            if(v_fwidth_array(i,j).eq.7) then 
+              wrk(i,j) = sum( Hvom(i-3:i+3,j-3:j+3,k)
+     &                      * filter_weights(-3:3,-3:3) )
+     &                   / weights_sum7
+            endif  
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS | defined LERAY_FILTER_5PTS
+            if(v_fwidth_array(i,j).eq.5) then 
+              wrk(i,j) = sum( Hvom(i-2:i+2,j-2:j+2,k)
+     &                      * filter_weights(-2:2,-2:2) )
+     &                   / weights_sum5
+            endif  
+# endif
+# if defined LERAY_FILTER_9PTS | defined LERAY_FILTER_7PTS | defined LERAY_FILTER_5PTS | defined LERAY_FILTER_3PTS
+            if(v_fwidth_array(i,j).eq.3) then 
+              wrk(i,j) = sum( Hvom(i-1:i+1,j-1:j+1,k)
+     &                      * filter_weights(-1:1,-1:1) )
+     &                   / weights_sum3
+            endif
+# endif
+            if(v_fwidth_array(i,j).lt.3) then
+                wrk(i,j) = Hvom(i,j,k)
+            endif
+          enddo
+        enddo
+        Hvom(istr:iend,JstrV:jend,k) = wrk(istr:iend,JstrV:jend)
+      enddo  
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+#  ifdef THREE_GHOST_POINTS_UV
+      call exchange_u3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                             Huon(START_2D_ARRAY,1))
+      call exchange_v3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                             Hvom(START_2D_ARRAY,1))
+#  else
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Huon(START_2D_ARRAY,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Hvom(START_2D_ARRAY,1))
+#  endif
+# endif
+
+      return
+      end subroutine 
 
 
 #else
