@@ -780,6 +780,18 @@ C$OMP PARALLEL DO PRIVATE(tile)
 #endif
 !
 !----------------------------------------------------------------------
+! Leray turbulence model initialization
+!----------------------------------------------------------------------
+!
+#ifdef LERAY_TURB
+      call calc_smoothing_weights
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call compute_fwidth_array(tile)
+      enddo  
+#endif      
+!
+!----------------------------------------------------------------------
 ! OA "Stand Alone" module
 !----------------------------------------------------------------------
 !

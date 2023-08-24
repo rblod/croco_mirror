@@ -360,8 +360,7 @@
 # endif
 
       return
-      end subroutine 
-
+      end subroutine
 
 #else
       subroutine leray_smoothing_empty
