@@ -123,6 +123,8 @@ include Makedefs
 	cpl_prism_define.F	cpl_prism_put.F 	cpl_prism_init.F\
 	cpl_prism_get.F 	cpl_prism_getvar.F      cpl_prism_grid.F\
 \
+	leray_smoothing.F\
+\
         module_substance.F  module_MUSTANG.F\
         abl_step.F  abl_ini.F  abl_tke.F\
 	wrt_abl_his.F  def_abl_his.F\
