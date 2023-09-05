@@ -601,10 +601,6 @@
 #   define UV_HADV_UP3
 #  endif
 
-#  ifdef LERAY_TURB
-        call smooth_horiz_3d(istr,iend,jstr,jend)
-#  endif
-
 #  if defined UV_HADV_UP5 || defined UV_HADV_C6 || defined UV_HADV_WENO5
 !
 !----------------------------------------------------------------------
@@ -1236,6 +1232,7 @@
         endif !<-- nnew.ne.3
 #  endif /* DIAGNOSTICS_UV ... */
 !----------------------------------------------------------
+!
 
 # endif /* UV_ADV */
 

@@ -310,6 +310,14 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
+
+# ifdef LERAY_TURB
+      do tile=my_first,my_last
+        call smooth_horiz_3d (tile)
+      enddo
+# endif
+C$OMP BARRIER
+
       do tile=my_first,my_last
         call set_vbc (tile)
 # if defined  BBL && !defined M3FAST
@@ -924,6 +932,13 @@ C$OMP BARRIER
 
       enddo
 
+C$OMP BARRIER
+
+# ifdef LERAY_TURB
+      do tile=my_first,my_last
+        call smooth_horiz_3d (tile)
+      enddo
+# endif
 C$OMP BARRIER
 
       do tile=my_first,my_last

@@ -4,10 +4,12 @@
 #include "cppdefs.h"
 #if defined MPI && defined SOLVE3D
 
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
       subroutine MessPass3D_tile (Istr,Iend,Jstr,Jend, A, nmax)
-# else
+# elif defined MP_3PTS
       subroutine MessPass3D_3pts_tile (Istr,Iend,Jstr,Jend, A, nmax)
+# elif defined MP_4PTS
+      subroutine MessPass3D_4pts_tile (Istr,Iend,Jstr,Jend, A, nmax)    
 # endif
 !
 !======================================================================
@@ -30,10 +32,12 @@
 ! Nb of boundary points involved in communication
 !
       integer Npts,ipts,jpts
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
       parameter (Npts=2)
-# else
+# elif defined MP_3PTS
       parameter (Npts=3)
+# elif defined MP_4PTS
+      parameter (Npts=4)      
 # endif
       integer nmax
       real A(GLOBAL_2D_ARRAY,nmax)
@@ -423,10 +427,13 @@ CSDISTRIBUTE_RESHAPE A(BLOCK_PATTERN) BLOCK_CLAUSE
       return
       end
 
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS      
 #  define MP_3PTS
 #  include "MessPass3D.F"
 #  undef MP_3PTS
+#  define MP_4PTS
+#  include "MessPass3D.F"
+#  undef MP_4PTS      
 # endif
 
 #else

@@ -4,10 +4,12 @@
 #include "cppdefs.h"
 #ifdef MPI
 
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
       subroutine MessPass2D_tile (Istr,Iend,Jstr,Jend, A)
-# else
+# elif defined MP_3PTS
       subroutine MessPass2D_3pts_tile (Istr,Iend,Jstr,Jend, A)
+# elif defined MP_4PTS
+      subroutine MessPass2D_4pts_tile (Istr,Iend,Jstr,Jend, A)    
 # endif
 !
 !======================================================================
@@ -28,10 +30,12 @@
 ! Nb of boundary points involved in communication
 !
       integer Npts,ipts,jpts
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
       parameter (Npts=2)
-# else
+# elif defined MP_3PTS
       parameter (Npts=3)
+# elif defined MP_4PTS
+      parameter (Npts=4)      
 # endif
       real A(GLOBAL_2D_ARRAY)
 CSDISTRIBUTE_RESHAPE A(BLOCK_PATTERN) BLOCK_CLAUSE
@@ -367,10 +371,13 @@ c      write(*,*) 'MessPass2D:    ', mynode,' exit'
       return
       end
 
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
 #  define MP_3PTS
 #  include "MessPass2D.F"
 #  undef MP_3PTS
+#  define MP_4PTS
+#  include "MessPass2D.F"
+#  undef MP_4PTS      
 # endif
 
 #else

@@ -157,9 +157,6 @@
 !
 !======================================================================
 !
-#  ifdef LERAY_TURB
-      call smooth_horiz_3d(istr,iend,jstr,jend)
-#  endif     
 !      
       do itrc=1,NT
         do k=1,N
@@ -436,6 +433,7 @@
           enddo ! source
         enddo ! itrc
 #  endif /* PSOURCE_MASS */
+!
 !
 !======================================================================
 !

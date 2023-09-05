@@ -43,7 +43,46 @@
 # define THREE_GHOST_POINTS_UV
 #endif
 
-#ifdef THREE_GHOST_POINTS
+#if defined LERAY_FILTER_9PTS
+# ifdef MPI
+#  define GLOBAL_2D_ARRAY -3:Lm+4+padd_X,-3:Mm+4+padd_E
+#  define GLOBAL_1D_ARRAYXI -3:Lm+4+padd_X
+#  define GLOBAL_1D_ARRAYETA -3:Mm+4+padd_E
+#  define START_2D_ARRAY -3,-3
+#  define START_1D_ARRAYXI -3
+#  define START_1D_ARRAYETA -3
+# else
+#  ifdef EW_PERIODIC
+#   define GLOBAL_1D_ARRAYXI -3:Lm+4+padd_X
+#   define START_1D_ARRAYXI -3
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY -3:Lm+4+padd_X,-3:Mm+4+padd_E
+#    define GLOBAL_1D_ARRAYETA -3:Mm+4+padd_E
+#    define START_2D_ARRAY -3,-3
+#    define START_1D_ARRAYETA -3
+#   else
+#    define GLOBAL_2D_ARRAY -3:Lm+4+padd_X,0:Mm+1+padd_E
+#    define START_2D_ARRAY -3,0
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_1D_ARRAYETA 0
+#   endif
+#  else
+#   define GLOBAL_1D_ARRAYXI 0:Lm+1+padd_X
+#   define START_1D_ARRAYXI 0
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-3:Mm+4+padd_E
+#    define GLOBAL_1D_ARRAYETA -3:Mm+4+padd_E
+#    define START_2D_ARRAY 0,-3
+#    define START_1D_ARRAYETA -3
+#   else
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_2D_ARRAY 0,0
+#    define START_1D_ARRAYETA 0
+#   endif
+#  endif
+# endif
+#elif defined THREE_GHOST_POINTS | defined LERAY_FILTER_7PTS 
 # ifdef MPI
 #  define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
 #  define GLOBAL_1D_ARRAYXI -2:Lm+3+padd_X

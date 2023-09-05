@@ -1,7 +1,9 @@
-#ifndef MP_3PTS
+#if !defined MP_3PTS & !defined MP_4PTS
       subroutine exchange_3d_tile (Istr,Iend,Jstr,Jend, A)
-#else
+#elif defined MP_3PTS
       subroutine exchange_3d_3pts_tile (Istr,Iend,Jstr,Jend, A)
+#elif defined MP_4PTS
+      subroutine exchange_3d_4pts_tile (Istr,Iend,Jstr,Jend, A)
 #endif
 !
 ! Set periodic boundary conditions (if any) for a three-dimensional
@@ -17,10 +19,12 @@
 #include "param.h"
 #include "scalars.h"
       integer Npts,ipts,jpts
-#ifndef MP_3PTS
+#if !defined MP_3PTS & !defined MP_4PTS
       parameter (Npts=2)
-#else
+#elif defined MP_3PTS
       parameter (Npts=3)
+#elif defined MP_4PTS
+      parameter (Npts=4)    
 #endif
       real A(GLOBAL_2D_ARRAY,KSTART:N)
       integer Istr,Iend,Jstr,Jend, i,j,k
@@ -139,18 +143,23 @@
 #endif
 #ifdef MPI
       k=N-KSTART+1
-# ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
       call MessPass3D_tile (Istr,Iend,Jstr,Jend,  A,k)
-# else
+# elif defined MP_3PTS
       call MessPass3D_3pts_tile (Istr,Iend,Jstr,Jend,  A,k)
+# elif defined MP_4PTS    
+      call MessPass3D_4pts_tile (Istr,Iend,Jstr,Jend,  A,k)
 # endif
 #endif
       return
       end
 
-#ifndef MP_3PTS
+# if !defined MP_3PTS & !defined MP_4PTS
 # define MP_3PTS
 # include "exchange_3d_tile.h"
 # undef MP_3PTS
+# define MP_4PTS
+# include "exchange_3d_tile.h"
+# undef MP_4PTS      
 #endif
 

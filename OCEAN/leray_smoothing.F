@@ -253,7 +253,17 @@
       return
       end subroutine
 
-      subroutine smooth_horiz_3d(istr,iend,jstr,jend)
+      subroutine smooth_horiz_3d(tile)
+      implicit none
+      integer  tile, trd, omp_get_thread_num
+# include "param.h"      
+# include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call smooth_horiz_3d_tile (istr,iend,jstr,jend)
+      return
+      end
+
+      subroutine smooth_horiz_3d_tile(istr,iend,jstr,jend)
       implicit none
 # include "param.h"      
 # include "ocean3d.h"
@@ -345,19 +355,25 @@
         Hvom(istr:iend,JstrV:jend,k) = wrk(istr:iend,JstrV:jend)
       enddo  
 
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-#  ifdef THREE_GHOST_POINTS_UV
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+#  if defined LERAY_FILTER_9PTS
+      call exchange_u3d_4pts_tile (Istr,Iend,Jstr,Jend,
+     &                    Huon(START_2D_ARRAY,1))
+      call exchange_v3d_4pts_tile (Istr,Iend,Jstr,Jend,
+     &                    Hvom(START_2D_ARRAY,1))
+#  elif defined THREE_GHOST_POINTS_UV | defined LERAY_FILTER_7PTS
       call exchange_u3d_3pts_tile (Istr,Iend,Jstr,Jend,
-     &                             Huon(START_2D_ARRAY,1))
+     &                    Huon(START_2D_ARRAY,1))
       call exchange_v3d_3pts_tile (Istr,Iend,Jstr,Jend,
-     &                             Hvom(START_2D_ARRAY,1))
+     &                    Hvom(START_2D_ARRAY,1))
 #  else
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
-     &                        Huon(START_2D_ARRAY,1))
+     &                   Huon(START_2D_ARRAY,1))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
-     &                        Hvom(START_2D_ARRAY,1))
-#  endif
-# endif
+     &                   Hvom(START_2D_ARRAY,1))
+#  endif      
+# endif 
 
       return
       end subroutine
