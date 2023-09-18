@@ -924,6 +924,13 @@ C$OMP BARRIER
       enddo
 C$OMP BARRIER
 
+# ifdef LERAY_TURB
+      do tile=my_first,my_last
+        call smooth_horiz_3d (tile)
+      enddo
+# endif
+C$OMP BARRIER
+
       do tile=my_first,my_last
 
         call omega (tile)
@@ -932,13 +939,6 @@ C$OMP BARRIER
 
       enddo
 
-C$OMP BARRIER
-
-# ifdef LERAY_TURB
-      do tile=my_first,my_last
-        call smooth_horiz_3d (tile)
-      enddo
-# endif
 C$OMP BARRIER
 
       do tile=my_first,my_last
@@ -1062,6 +1062,13 @@ C$OMP BARRIER
 C$OMP BARRIER
 
 #ifdef SOLVE3D
+
+# ifdef LERAY_TURB
+      do tile=my_first,my_last
+        call smooth_horiz_3d (tile)
+      enddo
+# endif
+C$OMP BARRIER
 
       do tile=my_first,my_last
 
