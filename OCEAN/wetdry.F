@@ -283,8 +283,16 @@ C$OMP BARRIER
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask_wet)
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask_wet_avg)
+#  ifdef LERAY_FILTER_9PTS
+      call exchange_u2d_4pts_tile (Istr,Iend,Jstr,Jend,  umask_wet)
+      call exchange_v2d_4pts_tile (Istr,Iend,Jstr,Jend,  vmask_wet)
+#  elif defined THREE_GHOST_POINTS_UV | defined LERAY_FILTER_7PTS
+      call exchange_u2d_3pts_tile (Istr,Iend,Jstr,Jend,  umask_wet)
+      call exchange_v2d_3pts_tile (Istr,Iend,Jstr,Jend,  vmask_wet)
+#  else      
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  umask_wet)
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vmask_wet)
+#  endif      
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,  pmask_wet)
 # endif
 
