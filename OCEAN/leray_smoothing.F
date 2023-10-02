@@ -183,7 +183,14 @@
           do i=IstrU,Iend
             do k=filter_width/2,1,-1
               if(i-k.ge.imin .and. i+k.le.imax
-     &     .and. j-k.ge.jmin .and. j+k.le.jmax) then
+     &     .and. j-k.ge.jmin .and. j+k.le.jmax
+# ifdef MASKING 
+     &     .and. count(umask(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+# endif
+# ifdef WET_DRY
+     &     .and. count(umask_wet(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+# endif           
+     &                                                          ) then
                 exit
               else
                 u_fwidth_array(i,j)=2*(k-1)+1
@@ -191,7 +198,32 @@
             enddo  
           enddo
         enddo
-      endif  
+# if defined MASKING | defined WET_DRY
+      else
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            do k=filter_width/2,1,-1
+              if(
+#  ifdef MASKING
+     &          count(umask(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+#   ifdef WET_DRY
+     &     .and.
+#   endif              
+#  endif
+#  ifdef WET_DRY
+     &          count(umask_wet(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+#  endif           
+     &                                                          ) then
+                exit
+              else
+                u_fwidth_array(i,j)=2*(k-1)+1
+              endif  
+            enddo  
+          enddo
+        enddo
+# endif        
+      endif
+            
             
 # ifdef NS_PERIODIC
       jmin=JstrV-filter_width/2
@@ -240,7 +272,14 @@
           do i=Istr,Iend
             do k=filter_width/2,1,-1
               if(i-k.ge.imin .and. i+k.le.imax
-     &     .and. j-k.ge.jmin .and. j+k.le.jmax) then
+     &     .and. j-k.ge.jmin .and. j+k.le.jmax
+# ifdef MASKING 
+     &     .and. count(vmask(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+# endif
+# ifdef WET_DRY
+     &     .and. count(vmask_wet(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+# endif           
+     &                                                          ) then
                 exit
               else
                 v_fwidth_array(i,j)=2*(k-1)+1
@@ -248,6 +287,30 @@
             enddo  
           enddo
         enddo
+# if defined MASKING | defined WET_DRY
+      else
+        do j=JstV,Jend
+          do i=Istr,Iend
+            do k=filter_width/2,1,-1
+              if(
+#  ifdef MASKING
+     &          count(vmask(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+#   ifdef WET_DRY
+     &     .and.
+#   endif              
+#  endif
+#  ifdef WET_DRY
+     &          count(vmask_wet(i-k:i+k,j-k:j+k).eq.1.0).eq.(2*k+1)**2
+#  endif           
+     &                                                          ) then
+                exit
+              else
+                v_fwidth_array(i,j)=2*(k-1)+1
+              endif  
+            enddo  
+          enddo
+        enddo
+# endif        
       endif  
 
       return

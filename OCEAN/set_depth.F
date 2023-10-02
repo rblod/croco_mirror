@@ -450,6 +450,10 @@ C$    integer omp_get_thread_num
 #  undef JU_RANGE
 #  undef IV_RANGE
 #  undef JV_RANGE
+
+#  if defined LERAY_TURB && defined WET_DRY
+      call wetdry_tile (Istr,Iend,Jstr,Jend)
+#  endif      
 !
 ! Exchange periodic boundaries, if so prescribed.
 !
@@ -709,6 +713,10 @@ C$    integer omp_get_thread_num
 #  undef JU_RANGE
 #  undef IV_RANGE
 #  undef JV_RANGE
+
+#  if defined LERAY_TURB && defined WET_DRY
+      call wetdry_tile (Istr,Iend,Jstr,Jend)
+#  endif      
 !
 ! Exchange periodic boundaries, if so prescribed.
 !

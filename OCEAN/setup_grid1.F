@@ -299,12 +299,16 @@ C$    integer omp_get_thread_num
 #  else
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask)
 #  endif
-#  ifdef THREE_GHOST_POINTS_UV
+#  if defined LERAY_FILTER_9PTS
+      call exchange_u2d_4pts_tile (Istr,Iend,Jstr,Jend, umask)
+#  elif defined THREE_GHOST_POINTS_UV | defined LERAY_FILTER_7PTS
       call exchange_u2d_3pts_tile (Istr,Iend,Jstr,Jend, umask)
 #  else
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  umask)
 #  endif
-#  ifdef THREE_GHOST_POINTS_UV
+#  if defined LERAY_FILTER_9PTS
+      call exchange_v2d_4pts_tile (Istr,Iend,Jstr,Jend, vmask)
+#  elif defined THREE_GHOST_POINTS_UV | defined LERAY_FILTER_7PTS
       call exchange_v2d_3pts_tile (Istr,Iend,Jstr,Jend, vmask)
 #  else
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vmask)
