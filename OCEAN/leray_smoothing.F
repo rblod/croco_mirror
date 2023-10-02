@@ -130,7 +130,8 @@
 # include "param.h"
 # include "ocean3d.h"
 # include "leray_smoothing.h" 
-# include "scalars.h"      
+# include "scalars.h"
+# include "grid.h"      
 
       integer istr,iend,jstr,jend,i,j,k
       integer imin,imax,jmin,jmax
@@ -289,7 +290,7 @@
         enddo
 # if defined MASKING | defined WET_DRY
       else
-        do j=JstV,Jend
+        do j=JstrV,Jend
           do i=Istr,Iend
             do k=filter_width/2,1,-1
               if(
