@@ -162,10 +162,22 @@
 # endif
 #endif
 
-#define PRIVATE_1D_SCRATCH_ARRAY Istr-2:Iend+2
-#define PRIVATE_2D_SCRATCH_ARRAY Istr-2:Iend+2,Jstr-2:Jend+2
-#define PRIVATE_1DXI_SCRATCH_ARRAY Istr-2:Iend+2
-#define PRIVATE_1DETA_SCRATCH_ARRAY Jstr-2:Jend+2
+#ifdef LERAY_FILTER_9PTS
+# define PRIVATE_1D_SCRATCH_ARRAY Istr-4:Iend+4
+# define PRIVATE_2D_SCRATCH_ARRAY Istr-4:Iend+4,Jstr-4:Jend+4
+# define PRIVATE_1DXI_SCRATCH_ARRAY Istr-4:Iend+4
+# define PRIVATE_1DETA_SCRATCH_ARRAY Jstr-4:Jend+4
+#elif defined LERAY_FILTER_7PTS
+# define PRIVATE_1D_SCRATCH_ARRAY Istr-3:Iend+3
+# define PRIVATE_2D_SCRATCH_ARRAY Istr-3:Iend+3,Jstr-3:Jend+3
+# define PRIVATE_1DXI_SCRATCH_ARRAY Istr-3:Iend+3
+# define PRIVATE_1DETA_SCRATCH_ARRAY Jstr-3:Jend+3
+#else
+# define PRIVATE_1D_SCRATCH_ARRAY Istr-2:Iend+2
+# define PRIVATE_2D_SCRATCH_ARRAY Istr-2:Iend+2,Jstr-2:Jend+2
+# define PRIVATE_1DXI_SCRATCH_ARRAY Istr-2:Iend+2
+# define PRIVATE_1DETA_SCRATCH_ARRAY Jstr-2:Jend+2
+#endif
 
 /*
   The following definitions contain fortran logical expressions

@@ -378,8 +378,13 @@
 # ifdef ALLOW_SINGLE_BLOCK_MODE
       parameter (size_XI=6+Lm, size_ETA=6+Mm)
 # else
+#  ifdef LERAY_FILTER_9PTS
+      parameter (size_XI=8+(Lm+NSUB_X-1)/NSUB_X)
+      parameter (size_ETA=8+(Mm+NSUB_E-1)/NSUB_E)
+#  else    
       parameter (size_XI=7+(Lm+NSUB_X-1)/NSUB_X)
       parameter (size_ETA=7+(Mm+NSUB_E-1)/NSUB_E)
+#  endif    
 # endif
       parameter (sse=size_ETA/Np, ssz=Np/size_ETA)
       parameter (se=sse/(sse+ssz), sz=1-se)
