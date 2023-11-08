@@ -823,22 +823,10 @@ C$OMP BARRIER
       enddo
       DVom(Istr:Iend,JstrV:Jend) = wrk3(Istr:Iend,JstrV:Jend)
 #   if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-#    if defined LERAY_FILTER_9PTS
-      call exchange_u2d_4pts_tile (Istr,Iend,Jstr,Jend,
-     &                    Duon(START_2D_ARRAY))
-      call exchange_v2d_4pts_tile (Istr,Iend,Jstr,Jend,
-     &                    Dvom(START_2D_ARRAY))
-#    elif defined LERAY_FILTER_7PTS
-      call exchange_u2d_3pts_tile (Istr,Iend,Jstr,Jend,
-     &                    Duon(START_2D_ARRAY))
-      call exchange_v2d_3pts_tile (Istr,Iend,Jstr,Jend,
-     &                    Dvom(START_2D_ARRAY))
-#    else
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   Duon(START_2D_ARRAY))
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   Dvom(START_2D_ARRAY))
-#    endif      
 #   endif 
 #  endif      
 !
