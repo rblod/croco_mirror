@@ -323,11 +323,11 @@
 # include "param.h"      
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-      call smooth_horiz_3d_tile (istr,iend,jstr,jend)
+      call smooth_horiz_3d_tile (istr,iend,jstr,jend,A2d(1,1,trd))
       return
       end
 
-      subroutine smooth_horiz_3d_tile(istr,iend,jstr,jend)
+      subroutine smooth_horiz_3d_tile(istr,iend,jstr,jend,wrk)
       implicit none
 # include "param.h"      
 # include "ocean3d.h"
