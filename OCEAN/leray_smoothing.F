@@ -320,7 +320,8 @@
       subroutine smooth_horiz_3d(tile)
       implicit none
       integer  tile, trd, omp_get_thread_num
-# include "param.h"      
+# include "param.h"
+# include "private_scratch.h"      
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       call smooth_horiz_3d_tile (istr,iend,jstr,jend,A2d(1,1,trd))
